@@ -20,11 +20,11 @@ input_data = np.expand_dims(input_data.astype(np.float32), axis=0)
 ort_sess = ort.InferenceSession('model.onnx')
 outputs = ort_sess.run(None, {'input': input_data})
 
-# jija = torch.jit.load('scriptmodule.pt')
-# torch_data = []
-# for o in outputs:
-#     torch_data.append(torch.Tensor(o))
-# bl = jija(*torch_data) # , torch.Tensor([1440, 800])
+jija = torch.jit.load('scriptmodule.pt')
+torch_data = []
+for o in outputs:
+    torch_data.append(torch.Tensor(o))
+bl = jija(*torch_data) # , torch.Tensor([1440, 800])
 
 
 result = postprocess(outputs)

@@ -67,7 +67,7 @@ class SegmentationPostProcess(torch.nn.Module):
         masks_result[int(pt0[1]):int(pt1[1]), int(pt0[0]):int(pt1[0])] = mask[(int(pt0[1]) - extended_box[1]):(int(pt1[1]) - extended_box[1]),
                                      (int(pt0[0]) - extended_box[0]):(int(pt1[0]) - extended_box[0])]
 
-    def forward(self, _boxes, _classes, _raw_masks) -> torch.Tensor:
+    def forward(self, _boxes, _classes, _raw_masks):
         wh = torch.tensor([640, 480])    #x: List[torch.Tensor]  wh: torch.Tensor
         conf = 0.75
         # boxes = x[0][0][:, :4]
@@ -81,10 +81,12 @@ class SegmentationPostProcess(torch.nn.Module):
         detections_filter = scores > conf
         boxes = boxes[detections_filter]
         classes = classes[detections_filter]
+        scores = scores[detections_filter]
         raw_masks = raw_masks[detections_filter]
         detections_filter = classes == 0
         boxes = boxes[detections_filter]
         raw_masks = raw_masks[detections_filter]
+        scores = scores[detections_filter]
         masks_results = torch.zeros(len(boxes), int(wh[1]), int(wh[0]), dtype=torch.int)
         for box, raw_mask, masks_result in zip(boxes, raw_masks, masks_results):
             # self.mask_proc(box, raw_mask, h, w, masks_result)
@@ -129,7 +131,7 @@ class SegmentationPostProcess(torch.nn.Module):
                                                                                          int(pt1[0]) - extended_box[0])]
 
 
-        return masks_results
+        return masks_results, boxes, scores
 
 
 # postoproc_model = SegmentationPostProcess()
